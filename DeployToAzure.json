@@ -48,9 +48,10 @@
     // Next is the variables section here
     "variables": {
         "workspaceResourceId": "[resourceId('microsoft.OperationalInsights/Workspaces', parameters('workspace'))]",
-        "_logAnalyticsTableId1": "DoppelVisionDEVTable_CL",
-        "dceResourceName": "DoppelVisionDEVDCEV1",
-        "dceImmutableId": "[guid(variables('dceResourceName'))]"
+        "_logAnalyticsTableId1": "DoppelTable_CL", // Enter your Table name
+        "dceResourceName": "DoppelDCE", // Enter your DCE name
+        "dceImmutableId": "[guid(variables('dceResourceName'))]",
+        "dcrResourceName": "DoppelDCR" // Enter your DCR name
         // Enter more variables as needed "":""
     },
     // Next is the resources sections here
@@ -62,7 +63,7 @@
             "apiVersion": "2021-09-01-preview",
             "location": "[parameters('workspace-location')]",
             "properties": {
-                "description": "DCE for DoppelVision webhook ingestion",
+                "description": "DCE for Doppel webhook ingestion",
                 "networkAcls": {
                     "publicNetworkAccess": "Enabled"
                 },
@@ -182,7 +183,7 @@
         },
         // DCR
         {
-            "name": "DoppelVisionDEVDCRV1", // Enter your DCR name
+            "name": "[variables('dceResourceName')]", 
             "apiVersion": "2021-09-01-preview",
             "type": "Microsoft.Insights/dataCollectionRules",
             "location": "[parameters('workspace-location')]",
@@ -196,7 +197,7 @@
                 //  Consider using these variables:
                 "dataCollectionEndpointId": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', variables('dceResourceName'))]",
                 "streamDeclarations": {
-                    "Custom-DoppelVisionDEVTable_CL": {
+                    "Custom-DoppelTable_CL": {
                         "columns": [
                             {
                                 "name": "event_type",
@@ -230,13 +231,13 @@
                 "dataFlows": [
                     {
                         "streams": [
-                            "Custom-DoppelVisionDEVTable_CL"
+                            "Custom-DoppelTable_CL"
                         ],
                         "destinations": [
                             "[parameters('workspaceId')]"
                         ],
                         "transformKql": "source\n| extend \n    EventType = tostring(event_type),\n    AlertID = tostring(alert.id),\n    AlertLink = tostring(alert.doppel_link),\n    AlertCreated = todatetime(alert.created_at),\n    Entity = tostring(alert.entity),\n    QueueState = tostring(alert.queue_state),\n    EntityState = tostring(alert.entity_state),\n    Severity = tostring(alert.severity),\n    Product = tostring(alert.product),\n    Source = tostring(alert.source),\n    UpdatedBy = tostring(alert.uploaded_by),\n    Timestamp = todatetime(timestamp),\n    TimeGenerated = now()\n| project \n    AlertID, \n    TimeGenerated,\n    Timestamp, \n    AlertCreated, \n    Entity, \n    Severity, \n    QueueState, \n    EntityState, \n    Product, \n    Source, \n    UpdatedBy, \n    AlertLink\n\n",
-                        "outputStream": "Custom-DoppelVisionDEVTable_CL"
+                        "outputStream": "Custom-DoppelTable_CL"
                     }
                 ],
                 "provisioningState": "Succeeded"
