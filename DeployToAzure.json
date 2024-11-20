@@ -183,7 +183,7 @@
         },
         // DCR
         {
-            "name": "[variables('dceResourceName')]", 
+            "name": "[variables('dcrResourceName')]", 
             "apiVersion": "2021-09-01-preview",
             "type": "Microsoft.Insights/dataCollectionRules",
             "location": "[parameters('workspace-location')]",
